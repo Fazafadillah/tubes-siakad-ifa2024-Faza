@@ -10,10 +10,37 @@ class KRSController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // $dataKRS = KRS::all();
-        $dataKRS = KRS::with(['mahasiswa', 'matakuliah'])->get();
+        // $dataKRS = KRS::with(['mahasiswa', 'matakuliah'])->get();
+        // return view('pages.krs.krs', compact('dataKRS'));
+        $dataKRS = KRS::find(1);
+        $dataKRS = KRS::with('mahasiswa')->find(4);
+        $dataKRS = KRS::with('matakuliah')->find(4);
+        $search = $request->keyword;
+
+        $dataKRS = KRS::with(['mahasiswa', 'matakuliah'])
+            ->when($search, function ($query, $search) {
+                return $query->where('id', 'like', "%{$search}%")
+                    ->orWhereHas('matakuliah', function ($q) use ($search) {
+                        $q->where('kode_matakuliah', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('matakuliah', function ($q) use ($search) {
+                        $q->where('nama_matakuliah', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('mahasiswa', function ($q) use ($search) {
+                        $q->where('npm', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('mahasiswa', function ($q) use ($search) {
+                        $q->where('nama', 'like', "%{$search}%");
+                    });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
         return view('pages.krs.krs', compact('dataKRS'));
     }
 

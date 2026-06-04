@@ -10,9 +10,30 @@ class DosenController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dataDosen = Dosen::all();
+        // $dataDosen = Dosen::all();
+        // return view('pages.dosen.dosen', compact('dataDosen'));
+
+        #cara pertama
+        #detail buku dari buku
+        $dataDosen = Dosen::find(1); //select * from buku where id=1
+        //dd($buku->detail->isbn);
+
+        // $dataDosen = Dosen::with('detail')->find(4);
+        //dd($buku->detail->isbn ?? '-');
+
+        $search = $request->keyword;
+
+        $dataDosen = Dosen::with([])
+            ->when($search, function ($query, $search) {
+                return $query->where('nidn', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%");
+            })
+            ->orderBy('nidn', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
         return view('pages.dosen.dosen', compact('dataDosen'));
     }
 

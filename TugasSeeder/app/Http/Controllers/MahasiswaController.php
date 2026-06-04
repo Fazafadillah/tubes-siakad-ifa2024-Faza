@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dosen;
 use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 
@@ -12,11 +13,28 @@ class MahasiswaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // $dataMhs = Mahasiswa::all();
-        $dataMhs = Mahasiswa::with('dosen')->get();
-        return view('pages.mahasiswa.mahasiswa  ', compact('dataMhs'));
+        // $dataMhs = Mahasiswa::with('dosen')->get();
+        // return view('pages.mahasiswa.mahasiswa  ', compact('dataMhs'));
+        $dataMhs = Mahasiswa::find(1);
+        $dataMhs = Dosen::with('dosen')->find(4);
+        $search = $request->keyword;
+
+        $dataMhs = Mahasiswa::with(['dosen'])
+            ->when($search, function ($query, $search) {
+                return $query->where('npm', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%")
+                    ->orWhereHas('dosen', function ($q) use ($search) {
+                        $q->where('nama', 'like', "%{$search}%");
+                    });
+            })
+            ->orderBy('npm', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('pages.mahasiswa.mahasiswa', compact('dataMhs'));
     }
 
     /**

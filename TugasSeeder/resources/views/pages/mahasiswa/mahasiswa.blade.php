@@ -22,10 +22,17 @@
             </div>
         @endif
         <div class="card p-3">
-            <div class="d-flex justify-content mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <a href="{{ route('form-mhs') }}" class="btn btn-primary">
                     Add
                 </a>
+
+                <form class="d-flex">
+                    <div class="input-group input-group-sm" style="width: 250px;">
+                        <input name="keyword" type="text" class="form-control" placeholder="Cari data">
+                        <button class="btn btn-success" type="submit">Cari</button>
+                    </div>
+                </form>
             </div>
 
             <table class="table table-hover table-bordered table-striped">
@@ -39,15 +46,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($dataMhs as $i)
+                    @foreach ($dataMhs as $index => $item)
                         <tr>
-                            <th scope="row" class="text-center">{{ $loop->iteration }}</th>
-                            <th scope="row" class="text-center">{{ $i->npm }}</th>
-                            <td>{{ $i->dosen->nama }}</td>
-                            <td>{{ $i->nama }}</td>
+                            <td scope="row" class="text-center">{{ $dataMhs->firstItem() + $index }}</td>
+                            <th scope="row" class="text-center">{{ $item->npm }}</th>
+                            <td>{{ $item->dosen->nama }}</td>
+                            <td>{{ $item->nama }}</td>
                             <td>
                                 {{-- <button type="button" class="btn btn-danger">Hapus</button> --}}
-                                <form action="{{ route('mahasiswa.delete', $i->npm) }}" method="POST"
+                                <form action="{{ route('mahasiswa.delete', $item->npm) }}" method="POST"
                                     style="display:inline;" onsubmit="return confirm('Yakin mau hapus data ini?')">
                                     @csrf
                                     @method('DELETE')
@@ -55,10 +62,10 @@
                                         Hapus
                                     </button>
                                 </form>
-                                <a href="{{ route('form-edit-mhs', $i->npm) }}" class="btn btn-warning">
+                                <a href="{{ route('form-edit-mhs', $item->npm) }}" class="btn btn-warning">
                                     Edit
                                 </a>
-                                <a href="{{ route('detail-mahasiswa', ['npm' => $i->npm]) }}"
+                                <a href="{{ route('detail-mahasiswa', ['npm' => $item->npm]) }}"
                                     class="btn btn-primary btn-sm"><i class="bi bi-eye"></i>
                                     Detail</a>
                             </td>
@@ -66,6 +73,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{ $dataMhs->links() }}
         </div>
     </div>
 @endsection

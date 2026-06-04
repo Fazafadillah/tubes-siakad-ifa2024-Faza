@@ -10,9 +10,24 @@ class MatakuliahController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dataMatkul = Matakuliah::all();
+        // $dataMatkul = Matakuliah::all();
+        // return view('pages.matakuliah.matakuliah', compact('dataMatkul'));
+
+        $dataMatkul = Matakuliah::find(1); //select * from buku where id=1
+
+        $search = $request->keyword;
+
+        $dataMatkul = Matakuliah::with([])
+            ->when($search, function ($query, $search) {
+                return $query->where('kode_matakuliah', 'like', "%{$search}%")
+                    ->orWhere('nama_matakuliah', 'like', "%{$search}%");
+            })
+            ->orderBy('kode_matakuliah', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
         return view('pages.matakuliah.matakuliah', compact('dataMatkul'));
     }
 

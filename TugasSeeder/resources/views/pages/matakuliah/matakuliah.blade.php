@@ -22,10 +22,17 @@
             </div>
         @endif
         <div class="card p-3">
-            <div class="d-flex justify-content mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <a href="{{ route('form-matkul') }}" class="btn btn-primary">
                     Add
                 </a>
+
+                <form class="d-flex">
+                    <div class="input-group input-group-sm" style="width: 250px;">
+                        <input name="keyword" type="text" class="form-control" placeholder="Cari data">
+                        <button class="btn btn-success" type="submit">Cari</button>
+                    </div>
+                </form>
             </div>
 
             <table class="table table-hover table-bordered table-striped">
@@ -39,15 +46,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($dataMatkul as $i)
+                    @foreach ($dataMatkul as $index => $item)
                         <tr>
-                            <th scope="row" class="text-center">{{ $loop->iteration }}</th>
-                            <th scope="row" class="text-center">{{ $i->kode_matakuliah }}</th>
-                            <td>{{ $i->nama_matakuliah }}</td>
-                            <td>{{ $i->sks }}</td>
+                            <td scope="row" class="text-center">{{ $dataMatkul->firstItem() + $index }}</td>
+                            <th scope="row" class="text-center">{{ $item->kode_matakuliah }}</th>
+                            <td>{{ $item->nama_matakuliah }}</td>
+                            <td>{{ $item->sks }}</td>
                             <td>
                                 {{-- <button type="button" class="btn btn-danger">Hapus</button> --}}
-                                <form action="{{ route('matkul.delete', $i->kode_matakuliah) }}" method="POST"
+                                <form action="{{ route('matkul.delete', $item->kode_matakuliah) }}" method="POST"
                                     style="display:inline;" onsubmit="return confirm('Yakin mau hapus data ini?')">
                                     @csrf
                                     @method('DELETE')
@@ -55,10 +62,10 @@
                                         Hapus
                                     </button>
                                 </form>
-                                <a href="{{ route('form-edit-matkul', $i->kode_matakuliah) }}" class="btn btn-warning">
+                                <a href="{{ route('form-edit-matkul', $item->kode_matakuliah) }}" class="btn btn-warning">
                                     Edit
                                 </a>
-                                <a href="{{ route('detail-matakuliah', ['kode_matakuliah' => $i->kode_matakuliah]) }}"
+                                <a href="{{ route('detail-matakuliah', ['kode_matakuliah' => $item->kode_matakuliah]) }}"
                                     class="btn btn-primary btn-sm"><i class="bi bi-eye"></i>
                                     Detail</a>
                             </td>
@@ -66,6 +73,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{ $dataMatkul->links() }}
         </div>
     </div>
 @endsection

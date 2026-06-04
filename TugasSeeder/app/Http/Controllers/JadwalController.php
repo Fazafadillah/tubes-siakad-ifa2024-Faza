@@ -4,16 +4,42 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Jadwal;
+use App\Models\Dosen;
+use App\Models\Matakuliah;
 
 class JadwalController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // $dataJadwal = Jadwal::all();
-        $dataJadwal = Jadwal::with(['dosen','matakuliah'])->get();
+        // $dataJadwal = Jadwal::with(['dosen', 'matakuliah'])->get();
+        // return view('pages.jadwal.jadwal', compact('dataJadwal'));
+        $dataJadwal = Jadwal::find(1);
+        $dataJadwal = Jadwal::with('dosen')->find(4);
+        $dataJadwal = Jadwal::with('matakuliah')->find(4);
+        $search = $request->keyword;
+
+        $dataJadwal = Jadwal::with(['dosen', 'matakuliah'])
+            ->when($search, function ($query, $search) {
+                return $query->where('kode_matakuliah', 'like', "%{$search}%")
+                    ->orWhere('kelas', 'like', "%{$search}%")
+                    ->orWhere('hari', 'like', "%{$search}%")
+                    ->orWhere('jam', 'like', "%{$search}%")
+                    ->orWhereHas('matakuliah', function ($q) use ($search) {
+                        $q->where('nama_matakuliah', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('dosen', function ($q) use ($search) {
+                        $q->where('nidn', 'like', "%{$search}%");
+                    });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
         return view('pages.jadwal.jadwal', compact('dataJadwal'));
     }
 
